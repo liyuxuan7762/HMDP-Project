@@ -61,7 +61,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
-    public Result login(LoginFormDTO loginForm, HttpSession session) {
+    public Result login(LoginFormDTO loginForm) {
         //1. 校验手机号
         String phone = loginForm.getPhone();
         if (RegexUtils.isPhoneInvalid(phone)) {
@@ -70,7 +70,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         //2. 校验验证码
         // TODO 2.1 从Redis中获取验证码 key为手机号
         // Object cacheCode = session.getAttribute("code");
-        String cacheCode = stringRedisTemplate.opsForValue().get(phone);
+        String cacheCode = stringRedisTemplate.opsForValue().get(LOGIN_CODE_KEY + phone);
         String code = loginForm.getCode();
         if (cacheCode == null || !cacheCode.equals(code)) {
             //3. 不一致，报错

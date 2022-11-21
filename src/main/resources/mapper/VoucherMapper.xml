@@ -3,11 +3,20 @@
 <mapper namespace="com.hmdp.mapper.VoucherMapper">
 
     <select id="queryVoucherOfShop" resultType="com.hmdp.entity.Voucher" parameterType="java.lang.Long">
-        SELECT
-            v.`id`, v.`shop_id`, v.`title`, v.`subTitle`, v.`rules`, v.`pay_value`,
-            v.`actual_value`, v.`type`, sv.`stock` , sv.begin_time , sv.end_time
+        SELECT v.id,
+               v.shop_id,
+               v.title,
+               v.sub_title,
+               v.rules,
+               v.pay_value,
+               v.actual_value,
+               v.type,
+               sv.stock,
+               sv.begin_time,
+               sv.end_time
         FROM tb_voucher v
-        LEFT JOIN  tb_seckill_voucher sv ON v.id = sv.voucher_id
-        WHERE v.shop_id = #{shopId} AND v.status = 1
+                 LEFT JOIN tb_seckill_voucher sv ON v.id = sv.voucher_id
+        WHERE v.shop_id = #{shopId}
+          AND v.STATUS = 1
     </select>
 </mapper>

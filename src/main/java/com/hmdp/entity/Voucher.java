@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 虎哥
@@ -46,6 +46,7 @@ public class Voucher implements Serializable {
     /**
      * 副标题
      */
+    @TableField("sub_title")
     private String subTitle;
 
     /**

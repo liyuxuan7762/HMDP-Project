@@ -9,6 +9,7 @@ import com.hmdp.dto.Result;
 import com.hmdp.entity.Shop;
 import com.hmdp.mapper.ShopMapper;
 import com.hmdp.service.IShopService;
+import com.hmdp.utils.CacheClient;
 import com.hmdp.utils.RedisData;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,8 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private CacheClient cacheClient;
 
     // 线程池
     public static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixedThreadPool(10);
@@ -43,7 +46,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
     @Override
     public Result queryById(Long id) {
         // System.out.print("1");
-        Shop shop = queryWithMutex(id);
+        Shop shop = cacheClient.queryWithPassThrough(CACHE_SHOP_KEY, id, Shop.class, id2 -> this.getById(id2), CACHE_NULL_TTL, TimeUnit.SECONDS);
         if (shop == null) {
             return Result.fail("商户ID不存在");
         }
@@ -70,29 +73,29 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
      * @param id
      * @return
      */
-    private Shop queryWithPassThrough(Long id) {
-        // TODO 根据ID到Redis中去查询数据
-        String shopJSON = stringRedisTemplate.opsForValue().get(CACHE_SHOP_KEY + id);
-        // TODO 如果查到了且不是空数据 则直接返回 isNotBlack ""返回false
-        if (StrUtil.isNotBlank(shopJSON)) {
-            // 将Json转化成对象返回
-            return JSONUtil.toBean(shopJSON, Shop.class);
-        }
-        // TODO 判断redis中存储的是否是空对象 如果是空数据 返回错误信息
-        if (Objects.equals(shopJSON, "")) {
-            return null;
-        }
-        // TODO 如果没查到 则去数据库查询
-        Shop shopObj = super.getById(id);
-        // TODO 数据库中如果没查到，则创建一个空对象存储到redis中
-        if (shopObj == null) {
-            stringRedisTemplate.opsForValue().set(CACHE_SHOP_KEY + id, "", CACHE_NULL_TTL, TimeUnit.MINUTES);
-            return null;
-        }
-        // TODO 数据库中如果查到了，则将结果保存到Redis中
-        stringRedisTemplate.opsForValue().set(CACHE_SHOP_KEY + id, JSONUtil.toJsonPrettyStr(shopObj), CACHE_SHOP_TTL, TimeUnit.MINUTES);
-        return shopObj;
-    }
+//    private Shop queryWithPassThrough(Long id) {
+//        // TODO 根据ID到Redis中去查询数据
+//        String shopJSON = stringRedisTemplate.opsForValue().get(CACHE_SHOP_KEY + id);
+//        // TODO 如果查到了且不是空数据 则直接返回 isNotBlack ""返回false
+//        if (StrUtil.isNotBlank(shopJSON)) {
+//            // 将Json转化成对象返回
+//            return JSONUtil.toBean(shopJSON, Shop.class);
+//        }
+//        // TODO 判断redis中存储的是否是空对象 如果是空数据 返回错误信息
+//        if (Objects.equals(shopJSON, "")) {
+//            return null;
+//        }
+//        // TODO 如果没查到 则去数据库查询
+//        Shop shopObj = super.getById(id);
+//        // TODO 数据库中如果没查到，则创建一个空对象存储到redis中
+//        if (shopObj == null) {
+//            stringRedisTemplate.opsForValue().set(CACHE_SHOP_KEY + id, "", CACHE_NULL_TTL, TimeUnit.MINUTES);
+//            return null;
+//        }
+//        // TODO 数据库中如果查到了，则将结果保存到Redis中
+//        stringRedisTemplate.opsForValue().set(CACHE_SHOP_KEY + id, JSONUtil.toJsonPrettyStr(shopObj), CACHE_SHOP_TTL, TimeUnit.MINUTES);
+//        return shopObj;
+//    }
 
     /**
      * 使用互斥锁解决缓存击穿问题 (缓存穿透使用空对象法解决)

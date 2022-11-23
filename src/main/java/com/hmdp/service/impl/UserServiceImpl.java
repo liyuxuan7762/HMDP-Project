@@ -103,6 +103,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         stringRedisTemplate.expire(tokenKey, LOGIN_USER_TTL, TimeUnit.SECONDS);
 
         // session.setAttribute("user", BeanUtil.copyProperties(user, UserDTO.class));
+
+        // 这里将token返回给前台，前台会放到sessionStorage中存放，下次再发送请求的时候将在header中添加auth字段中把token带回给服务器
         return Result.ok(token);
     }
 

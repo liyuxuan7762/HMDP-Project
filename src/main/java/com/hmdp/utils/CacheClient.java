@@ -9,13 +9,13 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-import static com.hmdp.utils.RedisConstants.LOCK_SHOP_KEY;
-import static com.hmdp.utils.RedisConstants.LOCK_SHOP_TTL;
+import static com.hmdp.utils.RedisConstants.*;
 
 /**
  * Redis工具类，用来实现对redis中的查询和写入
@@ -78,12 +78,12 @@ public class CacheClient {
         String key = keyPrefix + id;
         String json = stringRedisTemplate.opsForValue().get(key);
         // TODO 如果查询到，判断是否为空对象，如果为空对象 则返回null
-        if (StrUtil.isBlank(json)) {
-            return null;
+        if (StrUtil.isNotBlank(json)) {
+            return JSONUtil.toBean(json, type);
         }
         // TODO 如果查询到，且不为空对象，则直接返回该对象
-        if (!json.equals("")) {
-            return JSONUtil.toBean(json, type);
+        if (Objects.equals(json, "")) {
+            return null;
         }
         // TODO 如果查询不到，则去数据库查询
         R r = dbFallback.apply(id);
@@ -92,8 +92,8 @@ public class CacheClient {
             this.set(key, "", time, timeUnit);
             return null;
         }
-        // TODO 如果查询到，则将该对象保存到Redis中，并返回该对象
-        this.set(key, JSONUtil.toJsonStr(r), time, timeUnit);
+        // TODO 如果查询到，则将该对象保存到Redis中，并返回该对象 对象保存30分钟
+        this.set(key, JSONUtil.toJsonStr(r), CACHE_SHOP_TTL, TimeUnit.MINUTES);
         return r;
     }
 

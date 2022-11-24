@@ -14,12 +14,9 @@ import java.time.format.DateTimeFormatter;
  */
 @Component
 public class RedisIdWorker {
-
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-
-    public static final Long BEGIN_TIMESTAMP = 1640995200L;
-
+    public static final Long BEGIN_TIMESTAMP = 1640995200L; // 起始时间戳
     public Long nextId(String prefixKey) {
         // 1.获取当前时间戳
         LocalDateTime now = LocalDateTime.now();
@@ -38,5 +35,4 @@ public class RedisIdWorker {
         // 那么此时时间戳的第32位都为0，然后进行和序列号按位与运算，可以将序列号拼接到时间戳的低32位中，最终形成id
         return timeStamp << 32 | serialCode;
     }
-
 }

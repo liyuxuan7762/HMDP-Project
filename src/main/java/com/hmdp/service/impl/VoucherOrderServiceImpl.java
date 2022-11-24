@@ -8,8 +8,10 @@ import com.hmdp.mapper.VoucherOrderMapper;
 import com.hmdp.service.ISeckillVoucherService;
 import com.hmdp.service.IVoucherOrderService;
 import com.hmdp.utils.RedisIdWorker;
+import com.hmdp.utils.SimpleRedisLock;
 import com.hmdp.utils.UserHolder;
 import org.springframework.aop.framework.AopContext;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,9 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
 
     @Resource
     private RedisIdWorker redisIdWorker;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 实现优惠券的秒杀
@@ -60,11 +65,26 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         if (seckillVoucher.getStock() < 1) {
             return Result.fail("卖光了！");
         }
+
+        // 手动获取锁 这里锁的key是order+用户id，因为只有相同的用户才需要获取锁，不同的用户不需要进行判断
+        // 这里的锁的粒度是用户级别的
         Long userId = UserHolder.getUser().getId();
-        // 使用userId作为锁 保证userId一样的锁
-        synchronized (userId.toString().intern()) {
+        SimpleRedisLock simpleRedisLock = new SimpleRedisLock(stringRedisTemplate, "order:" + userId);
+        boolean isLock = simpleRedisLock.tryLock(1200L);
+        if (!isLock) {
+            // 如果获取锁失败，说明已经有一个订单计入到了生成订单阶段，也就是已经下单成功了
+            // 因此返回一个人只能购买一次
+            // 注意 这里的一人一单并不能只通过这个锁来取保证
+            // 还需要在saleVoucher方法中查询数据库订单表是否有该记录的存在来最终判断
+            // 因为即使获取到锁，saleVoucher方法不一定执行成功，可
+            return Result.fail("一个人只能下单一次");
+        }
+        // 如果获取锁成功，则下单
+        try {
             IVoucherOrderService proxy = (IVoucherOrderService) AopContext.currentProxy();
             return proxy.saleVoucher(voucherId);
+        } finally {
+            simpleRedisLock.unlock();
         }
     }
 

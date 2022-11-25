@@ -4,29 +4,29 @@
 --- DateTime: 2022/11/24 20:37
 ---
 
-local key = KEYS[1]; -- 锁的key 如lock:order+userID
-local threadId = ARGV[1]; -- 由UUID和当前线程ID拼接的线程唯一标识
-local releaseTime = ARGV[2]; -- 超时时间
+local key = KEYS[1] -- 锁的key 如lock:order+userID
+local threadId = ARGV[1] -- 由UUID和当前线程ID拼接的线程唯一标识
+local releaseTime = ARGV[2] -- 超时时间
 
 -- 1.判断锁是否存在
 if (redis.call('exists', key) == 0) then
     -- 2.锁不存在 获取锁
-    redis.call('hset', key, threadId, '1');
+    redis.call('hset', key, threadId, '1')
     -- 3.设置有效期
-    redis.call('expire', key, releaseTime);
-    return 1;
+    redis.call('expire', key, releaseTime)
+    return 1
 end
 
 -- 2.如果锁已经存在 则判断是否是自己的锁
 if (redis.call('hexists', key, threadId) == 1) then
     -- 是自己的锁 则计数器+1
-    redis.call('hincrby', key, threadId, '1');
+    redis.call('hincrby', key, threadId, '1')
     -- 重新设置有效期
-    redis.call('expire', key, releaseTime);
-    return 1;
+    redis.call('expire', key, releaseTime)
+    return 1
 end
 -- 如果能执行到这里，说明这把锁不是这个进程的，则获取锁失败
-return 0;
+return 0
 
 
 -- 这里redis的哈希存储的field就是ThreadId, 而field里面的值就是计数器的值

@@ -336,7 +336,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         }
         try {
             // 将订单保存到数据库
-            this.saleVoucher(order);
+            proxy.saleVoucher(order);
         } finally {
             lock.unlock();
         }

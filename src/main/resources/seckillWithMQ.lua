@@ -28,6 +28,9 @@ if (redis.call("sismember", orderKey, userId) == 1) then
 end
 
 -- 3.3 将订单信息保存到消息队列中
+-- 3.3 扣库存 下单
+redis.call('incrby', stockKey, -1)
+redis.call('sadd', orderKey, userId)
 redis.call('XADD', 'steam.orders', '*', 'userId', userId, 'voucherId', voucherId, "id", orderId)
 return 0
 

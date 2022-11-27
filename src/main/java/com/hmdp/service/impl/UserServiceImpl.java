@@ -12,12 +12,15 @@ import com.hmdp.entity.User;
 import com.hmdp.mapper.UserMapper;
 import com.hmdp.service.IUserService;
 import com.hmdp.utils.RegexUtils;
+import com.hmdp.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +43,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
-
     @Override
     public Result sendCode(String phone, HttpSession session) {
         //1. 校验手机号
@@ -59,6 +61,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         //返回ok
         return Result.ok();
     }
+
 
     @Override
     public Result login(LoginFormDTO loginForm) {
@@ -117,5 +120,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 2.保存用户
         save(user);
         return user;
+    }
+
+
+    /**
+     * 用户签到
+     *
+     * @return
+     */
+    @Override
+    public Result sign() {
+        // 获取当前用户id
+        Long userId = UserHolder.getUser().getId();
+        // 设置键 sign:userId:年月
+        LocalDateTime now = LocalDateTime.now();
+        String date = now.format(DateTimeFormatter.ofPattern(":yyyyMM"));
+        String key = SIGN_KEY + userId + date;
+
+        // 签到
+        int dayOfMonth = now.getDayOfMonth();
+        stringRedisTemplate.opsForValue().setBit(key, dayOfMonth - 1, true);
+        return Result.ok();
     }
 }

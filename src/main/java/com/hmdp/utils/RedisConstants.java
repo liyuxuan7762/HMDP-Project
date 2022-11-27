@@ -28,4 +28,6 @@ public class RedisConstants {
     public static final String FEED_MESSAGEBOX_KEY = "feed:messageBox:";
 
     public static final String SHOP_GEO_KEY = "shop:geo:";
+
+    public static final String SIGN_KEY = "sign:";
 }

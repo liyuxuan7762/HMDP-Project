@@ -2,8 +2,8 @@ package com.hmdp.controller;
 
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dto.Result;
-import com.dto.UserDTO;
+import com.hmdp.dto.Result;
+import com.hmdp.dto.UserDTO;
 import com.hmdp.entity.Blog;
 import com.hmdp.service.IBlogService;
 import com.hmdp.utils.SystemConstants;

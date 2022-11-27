@@ -4,7 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dto.Result;
+import com.hmdp.dto.Result;
 import com.hmdp.entity.Shop;
 import com.hmdp.mapper.ShopMapper;
 import com.hmdp.service.IShopService;
@@ -90,12 +90,12 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
         // TODO 如果有位置坐标 则需要根据位置坐标到Redis中查询店铺的ID
         GeoResults<RedisGeoCommands.GeoLocation<String>> result = stringRedisTemplate.opsForGeo().radius(
                 key,
-                new Circle(new Point(x, y), new Distance(5, Metrics.KILOMETERS)),
+                new Circle(new Point(x, y), new Distance(5, Metrics.KILOMETERS)), // 方圆5KM
                 RedisGeoCommands.GeoRadiusCommandArgs.
                         newGeoRadiusArgs().
-                        includeDistance().
-                        sortAscending().
-                        limit(end)
+                        includeDistance(). // 查询结果包含距离
+                        sortAscending(). // 按照距离从近到远
+                        limit(end) // 分页 显示从第一条到第end条
         );
 
         // TODO 根据从redis中查询到的结果封装

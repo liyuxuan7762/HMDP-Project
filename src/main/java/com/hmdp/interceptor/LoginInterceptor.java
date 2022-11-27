@@ -1,6 +1,6 @@
 package com.hmdp.interceptor;
 
-import com.dto.UserDTO;
+import com.hmdp.dto.UserDTO;
 import com.hmdp.utils.UserHolder;
 import org.springframework.web.servlet.HandlerInterceptor;
 

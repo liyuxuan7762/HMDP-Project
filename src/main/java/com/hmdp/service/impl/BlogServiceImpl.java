@@ -4,9 +4,9 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dto.Result;
-import com.dto.ScrollResult;
-import com.dto.UserDTO;
+import com.hmdp.dto.Result;
+import com.hmdp.dto.ScrollResult;
+import com.hmdp.dto.UserDTO;
 import com.hmdp.entity.Blog;
 import com.hmdp.entity.Follow;
 import com.hmdp.entity.User;
@@ -186,7 +186,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
         // TODO 获取当前用户 只有登录才能进入到个人主页查看关注博文 所以这里一定登陆了
         Long userId = UserHolder.getUser().getId();
         String key = FEED_MESSAGEBOX_KEY + userId;
-        // TODO 获取当前用户的信箱
+        // TODO 获取当前用户的信箱    ZREVRANGEBYSCORE key名称 最大分数 最小分数 偏移量 取元素的个数
         Set<ZSetOperations.TypedTuple<String>> typedTuples = stringRedisTemplate.opsForZSet().reverseRangeByScoreWithScores(key, 0, max, offset, 3);
         // TODO 判断是否信箱为空
         if (typedTuples == null || typedTuples.isEmpty()) {

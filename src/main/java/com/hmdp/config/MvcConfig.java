@@ -11,10 +11,8 @@ import javax.annotation.Resource;
 
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
-
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 登录拦截器
@@ -28,7 +26,6 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/user/code",
                         "/user/login"
                 ).order(1);
-
         // 默认拦截器拦截所有请求 使用order控制拦截器的先后顺序
         registry.addInterceptor(new RedisRefreshInterceptor(stringRedisTemplate))
                 .excludePathPatterns(

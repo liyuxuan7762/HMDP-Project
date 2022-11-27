@@ -1,7 +1,7 @@
 package com.hmdp.controller;
 
 
-import com.dto.Result;
+import com.hmdp.dto.Result;
 import com.hmdp.service.IShopTypeService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

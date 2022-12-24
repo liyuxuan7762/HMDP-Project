@@ -187,6 +187,12 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
         Long userId = UserHolder.getUser().getId();
         String key = FEED_MESSAGEBOX_KEY + userId;
         // TODO 获取当前用户的信箱    ZREVRANGEBYSCORE key名称 最大分数 最小分数 偏移量 取元素的个数
+        // 0是最小值，也就是发布最早的动态，max记录的是上一次分页查询时查询到的最后的一条动态
+        // 因此下面的redis命令实际上的意思就是，从max开始往后查(查询比max时间戳更早的博文)，查询范围是(0, max)
+        // (0, max) 表示的就是还没有查询到的博文,
+        // offset 是在max的基础上向后再跳过几条记录，主要的目的是防止有多个时间戳一样的记录，假设有3个时间戳为1的，而上一次查询到第一个时间戳为1的
+        // 那么如果不加offset的话，那么这几条就露了，
+        // 最后一个参数3就是pageSize，一次取三条记录
         Set<ZSetOperations.TypedTuple<String>> typedTuples = stringRedisTemplate.opsForZSet().reverseRangeByScoreWithScores(key, 0, max, offset, 3);
         // TODO 判断是否信箱为空
         if (typedTuples == null || typedTuples.isEmpty()) {

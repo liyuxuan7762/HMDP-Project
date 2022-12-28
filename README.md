@@ -1,3 +1,4 @@
+
 ## 🍭“小众点评”项目🍕
 
 ## 项目简介
@@ -32,7 +33,8 @@
 * 应用层：Springboot + SpringMVC
 * 持久层：Mysql + Redis + Mybatis Plus
 
-![image-20221127214810649](README.asset/image-20221127214810649.png)
+![在这里插入图片描述](https://img-blog.csdnimg.cn/ee4772e36ac446b4b6d61ccfc45384e6.png)
+
 
 ## 开发环境
 
@@ -54,4 +56,5 @@
 
 ## 项目效果展示
 
-![image-20221127220229632](README.asset/image-20221127220229632.png)
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/30913f4e0c704a858ee28a2368ea778a.png)

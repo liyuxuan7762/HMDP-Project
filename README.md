@@ -30,7 +30,7 @@
 
 * 前端：ElementUI + Vue
 * 网关：Nginx
-* 应用层：Springboot + SpringMVC
+* 应用层：Springboot + SpringMVC 单体项目
 * 持久层：Mysql + Redis + Mybatis Plus
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/ee4772e36ac446b4b6d61ccfc45384e6.png)

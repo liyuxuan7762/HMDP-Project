@@ -6,7 +6,7 @@
 本项目旨在模仿目前常用的“大众点评”APP，提供了一个可以查看商铺，关注博主，查看博文，下单点餐的综合性应用。
 亮点：本项目深度整合Redis的各种应用，包括使用Redis解决Session共享问题，使用Redis作为缓存的应用，使用Redis实现分布式锁，使用Redis的Set和Zset实现点赞，共同好友和排行榜和动态Feed流等功能，使用GEO数据类型实现附近商铺功能等。
 
-项目笔记：https://blog.csdn.net/lyx7762/article/details/128077616
+查看项目笔记：https://blog.csdn.net/lyx7762/article/details/128077616
 
 ## 项目特色
 
